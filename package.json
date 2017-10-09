@@ -1,0 +1,23 @@
+{
+  "name": "lab3_webapps",
+  "version": "1.0.0",
+  "description": "lab3 SER 421 Web Apps",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pranjalsk/lab3_webapps.git"
+  },
+  "author": "Pratik and Pranjal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pranjalsk/lab3_webapps/issues"
+  },
+  "homepage": "https://github.com/pranjalsk/lab3_webapps#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.1"
+  }
+}
