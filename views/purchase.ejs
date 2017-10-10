@@ -1,0 +1,57 @@
+<% include partials/header %>
+
+
+<div>
+        <h3>Thank you null</h3>
+        <p>Your Order</p>
+        <table border="2" style="padding: 1in" cellpadding="2">
+                <tr>
+                        <td><b>Book</b></td>
+                        <td><b>Quantity</b></td>
+                        <td><b>Unit Cost</b></td>
+                        <td><b>Total Cost</b></td>
+                    </tr>
+            <tbody>
+            <% cartbooks.forEach(function(cartbook){%>  
+                    <tr>
+                        <td align="left"><%= cartbook.name %></td>
+                        <td align="right"><%= cartbook.quantity %></td>
+                        <td align="right"><%= cartbook.price %></td>
+                        <td align="right"><%= (cartbook.price * cartbook.quantity) %></td>
+                    </tr>
+            <% }) %>      
+            </tbody>
+        </table>
+</div>
+
+<div>
+        <p>Total cost is $0.00</p>
+        <p><br>Please enter your Credit Card information:
+        </p>
+        <form method="post" action="/confirm">
+        <table border="0">
+        
+            <tbody>
+                <tr>
+                    <td>Credit Card</td>
+                    <td width="92"><select name="Creditcard">
+                        <option>MasterCard</option>
+                        <option>Visa</option>
+                        <option>Amex</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>Card Number</td>
+                    <td width="92"> <input type="text" name="Cardnumber" size="16"></td>			
+                </tr>
+                <tr>
+                    <td>Express Delivery</td>
+                    <td width="92"><input type="checkbox" name="expressdelivery"></td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="submit" name="Purchase" value="Purchase">
+        <br/><a href="/landing">LOGOUT</a>
+</div>
+
+<% include partials/footer %>
