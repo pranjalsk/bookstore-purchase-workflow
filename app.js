@@ -30,7 +30,7 @@ app.get('/login', function (req, res) {
 // Route to Login
 app.post("/login", function (req, res) {
 
-    var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
+    var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
 
     if (req.body.name === req.body.pwd) {
         app.locals.isLoginFailed = false;
