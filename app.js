@@ -50,8 +50,10 @@ app.post("/login", function (req, res) {
 });
 
 app.get("/list", function (req, res) {
-
-  res.send("hey this works " + req.session.username);
+  
+  res.render("list",{
+    name : req.session.username
+  });
 
 });
 app.listen(8080, process.env.IP, function () {
