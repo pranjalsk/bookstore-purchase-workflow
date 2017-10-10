@@ -1,27 +1,32 @@
 <% include partials/header %>
     <h1>Bookstore: Login page</h1>
 
-    <form action="login" method="post">
-        <table width="75%">
-            <tbody>
-                <tr>
-                    <td width="48%">Enter your name</td>
-                    <td width="52%">
-                        <input name="name" type="text">
-                    </td>
-                </tr>
-                <tr>
-                    <td width="48%">Enter your password</td>
-                    <td width="52%">
-                        <input name="pwd" type="text">
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <% if(isLoginFailed){%>
         <p>
-            <input name="Submit" value="Login" type="submit">
-            <input name="Reset" value="Reset form" type="reset">
+            <h3>Login failed! Please try again!</h3>
         </p>
-    </form>
+    <%}%>
+            <form action="login" method="post">
+                <table width="75%">
+                    <tbody>
+                        <tr>
+                            <td width="48%">Enter your name</td>
+                            <td width="52%">
+                                <input name="name" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="48%">Enter your password</td>
+                            <td width="52%">
+                                <input name="pwd" type="text">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    <input name="Submit" value="Login" type="submit">
+                    <input name="Reset" value="Reset form" type="reset">
+                </p>
+            </form>
 
-    <% include partials/footer %>
+            <% include partials/footer %>

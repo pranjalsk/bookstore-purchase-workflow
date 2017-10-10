@@ -8,35 +8,42 @@ var app = express();
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({
-  extended: true
+    extended: true
 }));
 var bookList = JSON.parse(BooksJSON);
 app.locals.books = bookList.books;
+
+app.locals.isLoginFailed = false;
 
 
 //--------------------------------------------------------------------------------
 
 app.get('/landing', function (req, res) {
-  res.render("landing");
-  console.log("its working");
+    res.render("landing");
 });
 
 // Route to Login
-app.get('/login',function(req,res){
+app.get('/login', function (req, res) {
     res.render("login");
 });
 
 // Route to Login
-app.post("/login",function(req,res){
-    console.log(req.body.name);
-    console.log(req.body.pwd);
-    res.send("Logged in is:"+req.body.name +"--"+req.body.pwd);
-});
+app.post("/login", function (req, res) {
+
+    var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
+
+    if (req.body.name === req.body.pwd) {
+        app.locals.isLoginFailed = false;
+        res.send(responseString);
+    }else{
+        app.locals.isLoginFailed = true;
+        res.redirect("login");
+    }
 
 
-app.post('/login', function (req, res) {
 });
+
 
 app.listen(8080, process.env.IP, function () {
-  console.log("Server started...");
+    console.log("Server started...");
 });
