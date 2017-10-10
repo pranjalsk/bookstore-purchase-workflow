@@ -52,7 +52,7 @@ app.post("/login", function (req, res) {
 app.get("/list", function (req, res) {
   
   res.render("list",{
-    name : req.session.username
+    currentUser : req.session.username
   });
 
 });
