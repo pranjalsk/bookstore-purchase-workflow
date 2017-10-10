@@ -5,10 +5,17 @@ var BooksJSON = '{"books":[{"id":"book1","name":"The Image-Guided Surgical Toolk
 var express = require("express");
 var bodyParser = require("body-parser");
 var app = express();
-
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 app.set("view engine", "ejs");
+app.use(cookieParser());
+app.use(session({
+  secret: 'MAGICALEXPRESSKEY',
+  resave: true,
+  saveUninitialized: true
+}));
 app.use(bodyParser.urlencoded({
-    extended: true
+  extended: true
 }));
 var bookList = JSON.parse(BooksJSON);
 app.locals.books = bookList.books;
@@ -19,31 +26,34 @@ app.locals.isLoginFailed = false;
 //--------------------------------------------------------------------------------
 
 app.get('/landing', function (req, res) {
-    res.render("landing");
+  res.render("landing");
 });
 
 // Route to Login
 app.get('/login', function (req, res) {
-    res.render("login");
+  res.render("login");
 });
 
 // Route to Login
 app.post("/login", function (req, res) {
 
-    var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
+  var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
 
-    if (req.body.name === req.body.pwd) {
-        app.locals.isLoginFailed = false;
-        res.send(responseString);
-    }else{
-        app.locals.isLoginFailed = true;
-        res.redirect("login");
-    }
-
-
+  if (req.body.name === req.body.pwd) {
+    app.locals.isLoginFailed = false;
+    req.session.username = req.body.name;
+    res.send(responseString);
+  } else {
+    app.locals.isLoginFailed = true;
+    res.redirect("login");
+  }
 });
 
+app.get("/list", function (req, res) {
 
+  res.send("hey this works " + req.session.username);
+
+});
 app.listen(8080, process.env.IP, function () {
-    console.log("Server started...");
+  console.log("Server started...");
 });
