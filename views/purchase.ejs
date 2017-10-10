@@ -12,12 +12,12 @@
                         <td><b>Total Cost</b></td>
                     </tr>
             <tbody>
-            <% cartbooks.forEach(function(cartbook){%>  
+            <% cartBooks.forEach(function(cartbook){%>  
                     <tr>
                         <td align="left"><%= cartbook.name %></td>
                         <td align="right"><%= cartbook.quantity %></td>
                         <td align="right"><%= cartbook.price %></td>
-                        <td align="right"><%= (cartbook.price * cartbook.quantity) %></td>
+                        <td align="right"><%= cartbook.selectedCost %></td>
                     </tr>
             <% }) %>      
             </tbody>
@@ -25,7 +25,7 @@
 </div>
 
 <div>
-        <p>Total cost is $0.00</p>
+        <p>Total cost is $<%= totalCost %></p>
         <p><br>Please enter your Credit Card information:
         </p>
         <form method="post" action="/confirm">

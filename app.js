@@ -50,12 +50,42 @@ app.post("/login", function (req, res) {
 });
 
 app.get("/list", function (req, res) {
-  
-  res.render("list",{
-    currentUser : req.session.username
+
+  res.render("list", {
+    currentUser: req.session.username
   });
 
 });
+
+app.post("/purchase", function (req, res) {
+  console.log(req.body);
+  var quantity = parseInt(req.body.Quantity);
+  var list = req.body.Books;
+
+  var mainList = JSON.parse(JSON.stringify(app.locals.books));
+  var selectedBooks = [];
+  var totalCost = 0;
+  list.forEach(function (item) {
+    mainList.forEach(function (element) {
+      if (element.id === item) {
+        element.quantity = quantity;
+        element.selectedCost = quantity * parseFloat(element.price);
+        selectedBooks.push(element);
+        totalCost += quantity * parseFloat(element.price);
+      }
+    });
+  });
+  
+  console.log(selectedBooks[0]);
+  console.log(selectedBooks[1]);
+  console.log(totalCost);
+
+  res.render("purchase", {
+    cartBooks : selectedBooks,
+    totalCost : totalCost.toFixed(2)
+  });
+});
+
 app.listen(8080, process.env.IP, function () {
   console.log("Server started...");
 });

@@ -16,7 +16,8 @@
                 <td>
                 <select size="9" name="Books" multiple="multiple">
                         <% books.forEach(function(book){%>
-                        <option value="<%= book.name.split(" ").splice(-1)[0] %>"><%= book.name %></option>
+                        <!-- <option value="<%= book.name.split(" ").splice(-1)[0] %>"><%= book.name %></option> -->
+                        <option value="<%= book.id %>"><%= book.name %></option>
                         <% }) %>
                 </select>
                 </td>
