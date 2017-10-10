@@ -14,6 +14,19 @@ app.get('/landing',function(req,res){
   res.render("landing");
 });
 
+// Route to Login
+app.get('/login',function(req,res){
+    res.render("login");
+});
+
+// Route to Login
+app.post("/login",function(req,res){
+    console.log(req.body.name);
+    console.log(req.body.pwd);
+    res.send("Logged in is:"+req.body.name +"--"+req.body.pwd);
+});
+
+
 app.listen(8080, process.env.IP, function(){
     console.log("Server started...");
 });
