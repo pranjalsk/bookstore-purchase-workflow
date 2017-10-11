@@ -7,6 +7,8 @@ var bodyParser = require("body-parser");
 var app = express();
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+
+//config
 app.set("view engine", "ejs");
 app.use(cookieParser());
 app.use(session({
@@ -17,13 +19,14 @@ app.use(session({
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+
+//setup db
 var bookList = JSON.parse(BooksJSON);
 app.locals.books = bookList.books;
-
 app.locals.isLoginFailed = false;
 
 
-//--------------------------------------------------------------------------------
+//Routes---------------------------------------------
 
 app.get('/landing', function (req, res) {
   res.render("landing");
@@ -75,14 +78,24 @@ app.post("/purchase", function (req, res) {
       }
     });
   });
-  
+
+  app.post("/confirm", function (req, res) {
+    console.log(req.body);
+    var purchaseDetails = req.body;
+    res.render("confirm", {
+      currentUser: req.session.username,
+      purchase: purchaseDetails
+    });
+  });
+
+
   console.log(selectedBooks[0]);
   console.log(selectedBooks[1]);
   console.log(totalCost);
 
   res.render("purchase", {
-    cartBooks : selectedBooks,
-    totalCost : totalCost.toFixed(2)
+    cartBooks: selectedBooks,
+    totalCost: totalCost.toFixed(2)
   });
 });
 

@@ -1,0 +1,36 @@
+<% include partials/header %>
+
+<p>Purchase Successful</p>
+
+<table border="0">
+	<tbody>
+		<tr>
+			<td>Customer:</td>
+			<td><%= currentUser %></td>
+		</tr>
+		<tr>
+			<td><span>Card:</span></td>
+			<td><%= purchase.Creditcard %></td>
+		</tr>
+		<tr>
+			<td>Card number:</td>
+			<td><%= purchase.Cardnumber %></td>
+		</tr>
+		<tr>
+			<td>Amount:</td>
+			<td>$<%= purchase.amount %></td>
+		</tr>
+		<tr>
+			<td>Express Delivery:</td>
+			<td>
+				<%= purchase.expressdelivery %>
+			</td>
+		</tr>
+	</tbody>
+</table>
+	<br/><a href="/list">BUY MORE BOOKS</a>
+	<br/><a href="/landing">LOGOUT</a>
+
+
+
+<% include partials/footer %>
