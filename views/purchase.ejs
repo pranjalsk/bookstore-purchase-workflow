@@ -1,6 +1,5 @@
 <% include partials/header %>
 
-
 <div>
         <h3>Thank you null</h3>
         <p>Your Order</p>
@@ -42,7 +41,7 @@
                 </tr>
                 <tr>
                     <td>Card Number</td>
-                    <td width="92"> <input type="text" name="Cardnumber" size="16"></td>			
+                    <td width="92"> <input type="text" name="Cardnumber" pattern="[0-9]{4} *[0-9]{4} *[0-9]{4} *[0-9]{4}" placeholder="Credit Card Number" size="16" required></td>			                  
                 </tr>
                 <tr>
                     <td>Express Delivery</td>

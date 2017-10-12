@@ -1,7 +1,18 @@
 <% include partials/header %>
 
+<div>
+    <% if(errors){%>
+        <p>
+            <h4>Incorrect input</h4>
+        </p>
+        <ul>
+            <% errors.forEach(function(error){%>
+                <li><%= error.msg %></li>
+            <%})%>
+        </ul>
+    <% } %>
+</div>
 <form action="/purchase" method="post">
-    
     <table border="0">
         <tbody>
             <tr>

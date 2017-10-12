@@ -7,6 +7,7 @@ var bodyParser = require("body-parser");
 var app = express();
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var expressValidator = require('express-validator');
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
@@ -18,6 +19,7 @@ app.use(session({
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+app.use(expressValidator());
 var bookList = JSON.parse(BooksJSON);
 app.locals.books = bookList.books;
 
@@ -32,7 +34,8 @@ app.get('/landing', function (req, res) {
 
 // Route to Login
 app.get('/login', function (req, res) {
-  res.render("login");
+  var errors = req.validationErrors();
+  res.render("login",{errors:errors});
 });
 
 // Route to Login
@@ -40,20 +43,36 @@ app.post("/login", function (req, res) {
 
   var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
 
-  if (req.body.name === req.body.pwd) {
-    app.locals.isLoginFailed = false;
-    req.session.username = req.body.name;
-    res.send(responseString);
-  } else {
-    app.locals.isLoginFailed = true;
-    res.redirect("login");
+  //santization and validation
+  req.sanitize('name').escape();
+  req.sanitize('name').trim();
+  req.checkBody('name','Name is required').notEmpty();
+  req.checkBody('name','Name must be only alpha numeric').isAlphanumeric();
+  req.checkBody('pwd','Password is required').notEmpty();
+
+  var errors = req.validationErrors();
+
+  if(errors){
+      res.render("login",{errors:errors});
+  }else{
+    if (req.body.name === req.body.pwd) {
+      app.locals.isLoginFailed = false;
+      req.session.username = req.body.name;
+      res.send(responseString);
+    } else {
+      app.locals.isLoginFailed = true;
+      res.redirect("login");
+    }
   }
+
+  
 });
 
 app.get("/list", function (req, res) {
-
+  var errors = req.validationErrors();
   res.render("list", {
-    currentUser: req.session.username
+    currentUser: req.session.username,
+    errors:errors
   });
 
 });
@@ -61,29 +80,39 @@ app.get("/list", function (req, res) {
 app.post("/purchase", function (req, res) {
   console.log(req.body);
   var quantity = parseInt(req.body.Quantity);
-  var list = req.body.Books;
+  //santize and validate quantity field
+  req.checkBody('Quantity','quantity is required').notEmpty();
+  req.checkBody('Quantity','quantity should be integer').isInt();
+  var errors = req.validationErrors();
 
+  var list = req.body.Books;
   var mainList = JSON.parse(JSON.stringify(app.locals.books));
   var selectedBooks = [];
   var totalCost = 0;
-  list.forEach(function (item) {
-    mainList.forEach(function (element) {
-      if (element.id === item) {
-        element.quantity = quantity;
-        element.selectedCost = quantity * parseFloat(element.price);
-        selectedBooks.push(element);
-        totalCost += quantity * parseFloat(element.price);
-      }
+  
+  if(errors){
+    res.render("list", {
+      currentUser: req.session.username,
+      errors:errors
     });
-  });
-  console.log(selectedBooks[0]);
-  console.log(selectedBooks[1]);
-  console.log(totalCost);
+  }else{
+    list.forEach(function (item) {
+      mainList.forEach(function (element) {
+        if (element.id === item) {
+          element.quantity = quantity;
+          element.selectedCost = quantity * parseFloat(element.price);
+          selectedBooks.push(element);
+          totalCost += quantity * parseFloat(element.price);
+        }
+      });
+    }); 
+    res.render("purchase", {
+      cartBooks : selectedBooks,
+      totalCost : totalCost.toFixed(2)
+    });
+  }
+  
 
-  res.render("purchase", {
-    cartBooks : selectedBooks,
-    totalCost : totalCost.toFixed(2)
-  });
 });
 
 

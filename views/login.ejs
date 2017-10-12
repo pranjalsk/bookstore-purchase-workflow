@@ -6,6 +6,18 @@
             <h3>Login failed! Please try again!</h3>
         </p>
     <%}%>
+    <div>
+        <% if(errors){%>
+            <p>
+                <h3>Login failed! Incorrect input</h3>
+            </p>
+            <ul>
+                <% errors.forEach(function(error){%>
+                    <li><%= error.msg %></li>
+                <%})%>
+            </ul>
+        <% } %>
+    </div>
             <form action="login" method="post">
                 <table width="75%">
                     <tbody>
@@ -18,7 +30,7 @@
                         <tr>
                             <td width="48%">Enter your password</td>
                             <td width="52%">
-                                <input name="pwd" type="text">
+                                <input name="pwd" type="password">
                             </td>
                         </tr>
                     </tbody>
