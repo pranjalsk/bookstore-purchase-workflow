@@ -142,7 +142,9 @@ app.post("/confirm",restrict,function(req,res){
 
 app.get('/logout', function (req, res) {
   console.log("LOGOUT HIT !!!!!!!!!")
-  req.session.username = null;
+  //req.session.username = null;
+  req.session.destroy();
+  // destroy once entire flow is done else store in memory... 
   res.redirect('/landing');
 });
 
