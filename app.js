@@ -80,28 +80,48 @@ app.post("/purchase", restrict, function (req, res) {
   //santize and validate quantity field
   req.checkBody('Quantity','quantity is required').notEmpty();
   req.checkBody('Quantity','quantity should be integer').isInt();
+  
   var errors = req.validationErrors();
-
-  var list = req.body.Books;
+  console.log(req.body)
+  var list = req.body.selectedBoxBooks;
+  console.log(list);
+  if(typeof(list) === "string"){
+    list = [list]
+  }
   var mainList = JSON.parse(JSON.stringify(app.locals.books));
   var selectedBooks = [];
   var totalCost = 0;
-  list.forEach(function (item) {
-    mainList.forEach(function (element) {
-      if (element.id === item) {
-        element.quantity = quantity;
-        element.selectedCost = quantity * parseFloat(element.price);
-        selectedBooks.push(element);
-        totalCost += quantity * parseFloat(element.price);
-      }
+
+  if(!req.body.hasOwnProperty('selectedBoxBooks')){
+    if(!errors){
+      errors=[]
+    }
+    errors.push({
+      location: 'body',
+      param: 'selectedBoxBooks',
+      msg: 'please select some books',
+      value: '0'
     });
-  }); 
+  }  
+
   if(errors){
     res.render("list", {
       currentUser: req.session.username,
       errors:errors
     });
   }else{
+
+    list.forEach(function (item) {
+      mainList.forEach(function (element) {
+        if (element.id === item) {
+          element.quantity = quantity;
+          element.selectedCost = quantity * parseFloat(element.price);
+          selectedBooks.push(element);
+          totalCost += quantity * parseFloat(element.price);
+        }
+      });
+    });
+
     res.render("purchase", {
       currentUser: req.session.username,
       cartBooks : selectedBooks,

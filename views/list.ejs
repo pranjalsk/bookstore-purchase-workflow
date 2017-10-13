@@ -25,7 +25,7 @@
             <tr>
                 <td>Books</td>
                 <td>
-                <select size="9" name="Books" multiple="multiple">
+                <select size="9" name="selectedBoxBooks" multiple="multiple">
                         <% books.forEach(function(book){%>
                         <!-- <option value="<%= book.name.split(" ").splice(-1)[0] %>"><%= book.name %></option> -->
                         <option value="<%= book.id %>"><%= book.name %></option>
