@@ -39,7 +39,7 @@ app.get('/login', function (req, res) {
 
 // Route to Login
 app.post("/login", function (req, res) {
-
+  console.log("login hit !!!!!!!");
   var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
 
   //santization and validation
@@ -132,7 +132,7 @@ app.post("/purchase", restrict, function (req, res) {
 });
  
 app.post("/confirm",restrict,function(req,res){
-  console.log(req.body);
+  //console.log(req.body);
   var purchaseDetails = req.body;
   res.render("confirm",{
     currentUser: req.session.username,
@@ -140,11 +140,18 @@ app.post("/confirm",restrict,function(req,res){
   });
 });
 
+app.get('/logout', function (req, res) {
+  console.log("LOGOUT HIT !!!!!!!!!")
+  req.session.username = null;
+  res.redirect('/landing');
+});
+
 
 //Middleware-------------------
 function restrict (req, res, next){
   if (!req.session.username) {
       res.redirect("landing");
+      //
   } else {
       next();
   }
