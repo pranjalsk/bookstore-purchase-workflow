@@ -27,7 +27,6 @@ app.locals.isLoginFailed = false;
 
 
 //--------------------------------------------------------------------------------
-
 app.get('/landing', function (req, res) {
   res.render("landing");
 });
@@ -64,20 +63,18 @@ app.post("/login", function (req, res) {
       res.redirect("login");
     }
   }
-
   
 });
 
-app.get("/list", function (req, res) {
+app.get("/list", restrict, function (req, res) {
   var errors = req.validationErrors();
   res.render("list", {
     currentUser: req.session.username,
     errors:errors
   });
-
 });
 
-app.post("/purchase", function (req, res) {
+app.post("/purchase", restrict, function (req, res) {
   console.log(req.body);
   var quantity = parseInt(req.body.Quantity);
   //santize and validate quantity field
@@ -89,35 +86,32 @@ app.post("/purchase", function (req, res) {
   var mainList = JSON.parse(JSON.stringify(app.locals.books));
   var selectedBooks = [];
   var totalCost = 0;
-  
+  list.forEach(function (item) {
+    mainList.forEach(function (element) {
+      if (element.id === item) {
+        element.quantity = quantity;
+        element.selectedCost = quantity * parseFloat(element.price);
+        selectedBooks.push(element);
+        totalCost += quantity * parseFloat(element.price);
+      }
+    });
+  }); 
   if(errors){
     res.render("list", {
       currentUser: req.session.username,
       errors:errors
     });
   }else{
-    list.forEach(function (item) {
-      mainList.forEach(function (element) {
-        if (element.id === item) {
-          element.quantity = quantity;
-          element.selectedCost = quantity * parseFloat(element.price);
-          selectedBooks.push(element);
-          totalCost += quantity * parseFloat(element.price);
-        }
-      });
-    }); 
     res.render("purchase", {
+      currentUser: req.session.username,
       cartBooks : selectedBooks,
       totalCost : totalCost.toFixed(2)
     });
   }
-  
-
+ 
 });
-
-
-  
-app.post("/confirm",function(req,res){
+ 
+app.post("/confirm",restrict,function(req,res){
   console.log(req.body);
   var purchaseDetails = req.body;
   res.render("confirm",{
@@ -126,6 +120,21 @@ app.post("/confirm",function(req,res){
   });
 });
 
+
+//Middleware-------------------
+function restrict (req, res, next){
+  if (!req.session.username) {
+      res.redirect("landing");
+  } else {
+      next();
+  }
+};
+
+
+//Invalid URLs------------------
+app.all('*', function(req, res) {
+  res.sendStatus(404);
+});
 
 app.listen(8080, process.env.IP, function () {
   console.log("Server started...");
