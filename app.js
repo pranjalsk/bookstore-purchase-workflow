@@ -34,7 +34,7 @@ var middleware = {
   },
   restrict: function (req, res, next) {
     if (!req.session.username) {
-      res.redirect(403, "landing");
+      res.redirect("landing");
     } else {
       next();
     }
