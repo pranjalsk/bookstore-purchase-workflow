@@ -44,7 +44,7 @@ var middleware = {
       next();
     } else {
       res.status(401);
-      res.redirect("landing");
+      res.render("landing");
     }
   }
 
