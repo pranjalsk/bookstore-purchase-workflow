@@ -18,13 +18,19 @@
 		</tr>
 		<tr>
 			<td>Amount:</td>
-			<td>$<%= purchase.amount %></td>
+			<td>$<%= purchase.totalCost %></td>
 		</tr>
 		<tr>
 			<td>Express Delivery:</td>
+			<% if(purchase.expressdelivery === "on") {%>
 			<td>
-				<%= purchase.expressdelivery %>
+				Yes
 			</td>
+			<% }else{ %>
+				<td>
+					No
+				</td>
+			<% } %> 
 		</tr>
 	</tbody>
 </table>

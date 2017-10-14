@@ -34,7 +34,7 @@ var middleware = {
   },
   restrict: function (req, res, next) {
     if (!req.session.username) {
-      res.redirect(403, "landing");
+      res.redirect('landing');
     } else {
       next();
     }
@@ -65,7 +65,6 @@ app.get('/login', middleware.cachePrevent, function (req, res) {
 
 // Route to Login
 app.post("/login", middleware.cachePrevent, function (req, res) {
-  console.log("login hit !!!!!!!");
   //santization and validation
   req.sanitize('name').escape();
   req.sanitize('name').trim();
@@ -109,16 +108,13 @@ app.get("/list", [middleware.cachePrevent, middleware.restrict], function (req, 
 });
 
 app.post("/purchase", [middleware.cachePrevent, middleware.restrict], function (req, res) {
-  console.log(req.body);
   var quantity = parseInt(req.body.Quantity);
   //santize and validate quantity field
   req.checkBody('Quantity', 'quantity is required').notEmpty();
   req.checkBody('Quantity', 'quantity should be integer').isInt();
 
   var errors = req.validationErrors();
-  console.log(req.body)
   var list = req.body.selectedBoxBooks;
-  console.log(list);
   if (typeof (list) === "string") {
     list = [list]
   }
@@ -166,8 +162,8 @@ app.post("/purchase", [middleware.cachePrevent, middleware.restrict], function (
 });
 
 app.post("/confirm", [middleware.cachePrevent, middleware.restrict], function (req, res) {
-  //console.log(req.body);
   var purchaseDetails = req.body;
+  var totalCost = req.body.totalCost;
   res.render("confirm", {
     currentUser: req.session.username,
     purchase: purchaseDetails
@@ -175,7 +171,6 @@ app.post("/confirm", [middleware.cachePrevent, middleware.restrict], function (r
 });
 
 app.get('/logout', middleware.cachePrevent, function (req, res) {
-  console.log("LOGOUT HIT !!!!!!!!!")
   //req.session.username = null;
   req.session.destroy();
   // destroy once entire flow is done else store in memory... 
@@ -238,6 +233,16 @@ app.post("/delete",[middleware.cachePrevent, middleware.adminRestrict],function(
 });
 
 
+// redirect upon direct URL access
+app.get('/comfirm', function (req, res) {
+  req.session.destroy();
+  res.redirect('/landing');
+});
+
+app.get('/purchase', function (req, res) {
+  req.session.destroy();
+  res.redirect('/landing');
+});
 
 //Handle unimplemented methods------
 app.all("/purchase", function (req, res) {
