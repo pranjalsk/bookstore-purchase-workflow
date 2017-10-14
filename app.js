@@ -186,22 +186,40 @@ app.get('/logout', middleware.cachePrevent, function (req, res) {
 
 //Admin workflow--------------------
 app.get("/add", [middleware.cachePrevent, middleware.adminRestrict], function (req, res) {
-  res.render("add");
+  var errors = req.validationErrors();
+  res.render("add",{
+    errors: errors
+  });
 });
 
 app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (req, res) {
-  var newBook = {
-    id: req.body.bookId,
-    name: req.body.bookName,
-    price: req.body.bookPrice,
-    url: req.body.bookUrl,
-  }
-  if (app.locals.books instanceof Array) {
-    app.locals.books.push(newBook);
+
+  //field validations
+  req.checkBody('bookId', 'bookId is required').notEmpty().isAlphanumeric();
+  req.checkBody('bookName', 'bookName should be non empty').notEmpty();
+  req.checkBody('bookPrice', 'bookPrice is required and should be integer').notEmpty().isInt();
+  req.checkBody('bookUrl', 'bookUrl is required').notEmpty();
+  var errors = req.validationErrors();
+
+  if (errors) {
+    res.render("add", {
+      errors: errors
+    });
   } else {
-    app.locals.books = newBook;
+    var newBook = {
+      id: req.body.bookId,
+      name: req.body.bookName,
+      price: req.body.bookPrice,
+      url: req.body.bookUrl,
+    }
+    if (app.locals.books instanceof Array) {
+      app.locals.books.push(newBook);
+    } else {
+      app.locals.books = newBook;
+    }
+    res.render("add");
   }
-  res.render("add");
+
 });
 
 

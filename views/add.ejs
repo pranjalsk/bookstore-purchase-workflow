@@ -29,7 +29,22 @@
                 <% }) %>
         </table>
     </div>
-
+    <br/>
+    <br/>
+    <div>
+        <% if(errors){%>
+            <p>
+                <h3>Login failed! Incorrect input</h3>
+            </p>
+            <ul>
+                <% errors.forEach(function(error){%>
+                    <li>
+                        <%= error.msg %>
+                    </li>
+                    <%})%>
+            </ul>
+            <% } %>
+    </div>
     <div>
         <h3>Add new book</h3>
         <form method="post" action="/add">
