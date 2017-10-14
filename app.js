@@ -224,10 +224,7 @@ app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (
 });
 
 app.get("/delete",[middleware.cachePrevent, middleware.adminRestrict],function(req,res){
-  var errors = req.validationErrors();
-  res.render("delete",{
-    errors: errors
-  });
+  res.render("delete");
 });
 
 app.post("/delete",[middleware.cachePrevent, middleware.adminRestrict],function(req,res){
