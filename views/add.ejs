@@ -1,0 +1,54 @@
+<% include partials/header %>
+
+<div>
+    <h4>All the books in the bookstore!</h4>
+</div>
+<div>
+<table cellpadding="10">
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>MoreInfo</th>
+    </tr>
+    <% books.forEach(function(book){%>
+        <tr>
+            <td><%= book.name %></td>
+            <td><%= book.price %></td>
+            <td><a href="<%= book.url %>">Get Info</a></td>
+        </tr>
+    <% }) %>
+</table>
+</div>
+
+
+
+<form method="post" action="/add">
+    <table border="0">
+        <tbody>
+            <tr>
+                <td>Book Id</td>
+                <td width="92"><input type="text" name="bookId" placeholder="Book ID" size="16" required></td>			                  
+            </td>
+            </tr>
+            <tr>
+                <td>Book name</td>
+                <td width="92"><input type="text" name="bookName" placeholder="Book Name" size="16" required></td>			                  
+            </td>
+            </tr>
+            <tr>
+                <td>Book price</td>
+                <td width="92"><input type="text" name="bookPrice" placeholder="Book Price" size="16" required></td>			                  
+            </td>
+            </tr>
+            <tr>
+                <td>Book URL</td>
+                <td width="92"><input type="text" name="bookUrl" placeholder="Book URL" size="16" required></td>			                  
+            </td>
+            </tr>
+        </tbody>
+    </table>
+    <input type="submit" name="add" value="add">
+    <br/><a href="/logout">LOGOUT</a>
+
+
+<% include partials/footer %>
