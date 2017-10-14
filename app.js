@@ -40,10 +40,10 @@ var middleware = {
       next();
     }
   },
-  adminRestrict: function(req,res,next){
-    if(req.session.username && req.session.username === "admin"){
+  adminRestrict: function (req, res, next) {
+    if (req.session.username && req.session.username === "admin") {
       next();
-    }else{
+    } else {
       res.status(401);
       res.redirect("landing");
     }
@@ -67,7 +67,7 @@ app.get('/login', middleware.cachePrevent, function (req, res) {
 
 // Route to Login
 app.post("/login", middleware.cachePrevent, function (req, res) {
-  console.log("login hit !!!!!!!");  
+  console.log("login hit !!!!!!!");
   //santization and validation
   req.sanitize('name').escape();
   req.sanitize('name').trim();
@@ -85,13 +85,13 @@ app.post("/login", middleware.cachePrevent, function (req, res) {
     if (req.body.name === req.body.pwd) {
       app.locals.isLoginFailed = false;
       req.session.username = req.body.name;
-      if(req.session.username === "admin"){
-        var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in!'+
-         '<br>Click <a href="/add">here</a> to ADD some books!'+
-         '<br>Click <a href="/delete">here</a> to DELETE some books!'+
-         '<br>Click <a href="/list">here</a> to Order some books! </body> </html>'    
-      }else{
-        var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'    
+      if (req.session.username === "admin") {
+        var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in!' +
+          '<br>Click <a href="/add">here</a> to ADD some books!' +
+          '<br>Click <a href="/delete">here</a> to DELETE some books!' +
+          '<br>Click <a href="/list">here</a> to Order some books! </body> </html>'
+      } else {
+        var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
       }
       res.send(responseString);
     } else {
@@ -185,17 +185,24 @@ app.get('/logout', middleware.cachePrevent, function (req, res) {
 });
 
 //Admin workflow--------------------
-app.get("/add",[middleware.cachePrevent, middleware.adminRestrict],function(req,res){
+app.get("/add", [middleware.cachePrevent, middleware.adminRestrict], function (req, res) {
   res.render("add");
 });
 
-app.post("/add",[middleware.cachePrevent, middleware.adminRestrict],function(req,res){
-  console.log(req.body); 
+app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (req, res) {
+  var newBook = {
+    id: req.body.bookId,
+    name: req.body.bookName,
+    price: req.body.bookPrice,
+    url: req.body.bookUrl,
+  }
+  if (app.locals.books instanceof Array) {
+    app.locals.books.push(newBook);
+  } else {
+    app.locals.books = newBook;
+  }
+  res.render("add");
 });
-
-
-
-
 
 
 
