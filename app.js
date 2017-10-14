@@ -43,8 +43,7 @@ var middleware = {
     if (req.session.username && req.session.username === "admin") {
       next();
     } else {
-      res.status(401);
-      res.render("landing");
+      res.status(401).location("/landing").end();
     }
   }
 
