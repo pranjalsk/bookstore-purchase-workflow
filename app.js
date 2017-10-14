@@ -25,6 +25,24 @@ app.locals.books = bookList.books;
 
 app.locals.isLoginFailed = false;
 
+//Middleware-------------------
+
+var middleware = {
+
+  cachePrevent: function (req, res, next) {
+    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    next();
+  },
+
+  restrict: function (req, res, next) {
+    if (!req.session.username) {
+      res.redirect("landing");
+    } else {
+      next();
+    }
+  }
+
+}
 
 //--------------------------------------------------------------------------------
 app.get('/landing', function (req, res) {
@@ -32,28 +50,32 @@ app.get('/landing', function (req, res) {
 });
 
 // Route to Login
-app.get('/login', function (req, res) {
+app.get('/login', middleware.cachePrevent, function (req, res) {
   var errors = req.validationErrors();
-  res.render("login",{errors:errors});
+  res.render("login", {
+    errors: errors
+  });
 });
 
 // Route to Login
-app.post("/login", function (req, res) {
+app.post("/login", middleware.cachePrevent, function (req, res) {
   console.log("login hit !!!!!!!");
   var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
 
   //santization and validation
   req.sanitize('name').escape();
   req.sanitize('name').trim();
-  req.checkBody('name','Name is required').notEmpty();
-  req.checkBody('name','Name must be only alpha numeric').isAlphanumeric();
-  req.checkBody('pwd','Password is required').notEmpty();
+  req.checkBody('name', 'Name is required').notEmpty();
+  req.checkBody('name', 'Name must be only alpha numeric').isAlphanumeric();
+  req.checkBody('pwd', 'Password is required').notEmpty();
 
   var errors = req.validationErrors();
 
-  if(errors){
-      res.render("login",{errors:errors});
-  }else{
+  if (errors) {
+    res.render("login", {
+      errors: errors
+    });
+  } else {
     if (req.body.name === req.body.pwd) {
       app.locals.isLoginFailed = false;
       req.session.username = req.body.name;
@@ -63,38 +85,38 @@ app.post("/login", function (req, res) {
       res.redirect("login");
     }
   }
-  
+
 });
 
-app.get("/list", restrict, function (req, res) {
+app.get("/list", [middleware.cachePrevent, middleware.restrict], function (req, res) {
   var errors = req.validationErrors();
   res.render("list", {
     currentUser: req.session.username,
-    errors:errors
+    errors: errors
   });
 });
 
-app.post("/purchase", restrict, function (req, res) {
+app.post("/purchase", [middleware.cachePrevent, middleware.restrict], function (req, res) {
   console.log(req.body);
   var quantity = parseInt(req.body.Quantity);
   //santize and validate quantity field
-  req.checkBody('Quantity','quantity is required').notEmpty();
-  req.checkBody('Quantity','quantity should be integer').isInt();
-  
+  req.checkBody('Quantity', 'quantity is required').notEmpty();
+  req.checkBody('Quantity', 'quantity should be integer').isInt();
+
   var errors = req.validationErrors();
   console.log(req.body)
   var list = req.body.selectedBoxBooks;
   console.log(list);
-  if(typeof(list) === "string"){
+  if (typeof (list) === "string") {
     list = [list]
   }
   var mainList = JSON.parse(JSON.stringify(app.locals.books));
   var selectedBooks = [];
   var totalCost = 0;
 
-  if(!req.body.hasOwnProperty('selectedBoxBooks')){
-    if(!errors){
-      errors=[]
+  if (!req.body.hasOwnProperty('selectedBoxBooks')) {
+    if (!errors) {
+      errors = []
     }
     errors.push({
       location: 'body',
@@ -102,14 +124,14 @@ app.post("/purchase", restrict, function (req, res) {
       msg: 'please select some books',
       value: '0'
     });
-  }  
+  }
 
-  if(errors){
+  if (errors) {
     res.render("list", {
       currentUser: req.session.username,
-      errors:errors
+      errors: errors
     });
-  }else{
+  } else {
 
     list.forEach(function (item) {
       mainList.forEach(function (element) {
@@ -124,23 +146,23 @@ app.post("/purchase", restrict, function (req, res) {
 
     res.render("purchase", {
       currentUser: req.session.username,
-      cartBooks : selectedBooks,
-      totalCost : totalCost.toFixed(2)
+      cartBooks: selectedBooks,
+      totalCost: totalCost.toFixed(2)
     });
   }
- 
+
 });
- 
-app.post("/confirm",restrict,function(req,res){
+
+app.post("/confirm", [middleware.cachePrevent, middleware.restrict], function (req, res) {
   //console.log(req.body);
   var purchaseDetails = req.body;
-  res.render("confirm",{
+  res.render("confirm", {
     currentUser: req.session.username,
-    purchase:purchaseDetails
+    purchase: purchaseDetails
   });
 });
 
-app.get('/logout', function (req, res) {
+app.get('/logout', middleware.cachePrevent, function (req, res) {
   console.log("LOGOUT HIT !!!!!!!!!")
   //req.session.username = null;
   req.session.destroy();
@@ -149,36 +171,27 @@ app.get('/logout', function (req, res) {
 });
 
 
-//Middleware-------------------
-function restrict (req, res, next){
-  if (!req.session.username) {
-      res.redirect("landing");
-      //
-  } else {
-      next();
-  }
-};
 
 
 //Handle unimplemented methods------
-app.all("/purchase", function(req, res) {
+app.all("/purchase", function (req, res) {
   res.sendStatus(501);
 });
-app.all("/confirm",function(req,res){
+app.all("/confirm", function (req, res) {
   res.sendStatus(501);
 });
-app.all("/login",function(req,res){
+app.all("/login", function (req, res) {
   res.sendStatus(501);
 });
-app.all("/landing",function(req,res){
+app.all("/landing", function (req, res) {
   res.sendStatus(501);
 });
-app.all("/list",function(req,res){
+app.all("/list", function (req, res) {
   res.sendStatus(501);
 });
 
 //Invalid URLs------------------
-app.all('*', function(req, res) {
+app.all('*', function (req, res) {
   res.sendStatus(404);
 });
 
