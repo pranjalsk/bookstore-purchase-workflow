@@ -33,12 +33,19 @@ var middleware = {
     res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     next();
   },
-
   restrict: function (req, res, next) {
     if (!req.session.username) {
       res.redirect("landing");
     } else {
       next();
+    }
+  },
+  adminRestrict: function(req,res,next){
+    if(req.session.username && req.session.username === "admin"){
+      next();
+    }else{
+      res.status(401);
+      res.redirect("landing");
     }
   }
 
@@ -177,6 +184,19 @@ app.get('/logout', middleware.cachePrevent, function (req, res) {
   res.redirect('/landing');
 });
 
+//Admin workflow--------------------
+app.get("/add",[middleware.cachePrevent, middleware.adminRestrict],function(req,res){
+  res.render("add");
+});
+
+app.post("/add",[middleware.cachePrevent, middleware.adminRestrict],function(req,res){
+  console.log(req.body); 
+});
+
+
+
+
+
 
 
 
@@ -201,9 +221,6 @@ app.all("/list", function (req, res) {
 app.all('*', function (req, res) {
   res.sendStatus(404);
 });
-
-
-
 
 
 app.listen(8080, process.env.IP, function () {
