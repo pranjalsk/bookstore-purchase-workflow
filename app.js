@@ -34,11 +34,7 @@ var middleware = {
   },
   restrict: function (req, res, next) {
     if (!req.session.username) {
-<<<<<<< HEAD
-      res.redirect('landing');
-=======
       res.redirect("landing");
->>>>>>> 8928504d34ae5f668119c592a6180296c67e074c
     } else {
       next();
     }
