@@ -1,0 +1,44 @@
+<% include partials/header %>
+
+<div>
+    <h4>All the books in the bookstore!</h4>
+</div>
+<div>
+<table cellpadding="10">
+    <tr>
+        <th>Book ID</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>MoreInfo</th>
+    </tr>
+    <% books.forEach(function(book){%>
+        <tr>
+            <td><%= book.id %></td>
+            <td><%= book.name %></td>
+            <td><%= book.price %></td>
+            <td><a href="<%= book.url %>">Get Info</a></td>
+        </tr>
+    <% }) %>
+</table>
+</div>
+<br>
+<div>
+    Enter ID of book to be deleted
+</div>
+<form method="post" action="/delete">
+    <table border="0">
+        <tbody>
+            <tr>
+                <td>Book Id</td>
+                <td width="92"><input type="text" name="bookId" placeholder="Book ID" size="16" required></td>
+                <td><input type="submit" name="delete" value="delete"></td>
+            </tr> 
+        </tbody>
+    </table>
+
+    <br>Click <a href="/add">here</a> to ADD some books!'</br>
+
+    <br><a href="/logout">LOGOUT</a></br>
+
+
+<% include partials/footer %>

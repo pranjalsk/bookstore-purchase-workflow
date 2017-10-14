@@ -222,6 +222,24 @@ app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (
 
 });
 
+app.get("/delete",[middleware.cachePrevent, middleware.adminRestrict],function(req,res){
+  var errors = req.validationErrors();
+  res.render("delete",{
+    errors: errors
+  });
+});
+
+app.post("/delete",[middleware.cachePrevent, middleware.adminRestrict],function(req,res){
+  var deleteBookID = req.body.bookId;
+  var bookList = [];
+  app.locals.books.forEach(function(item){
+    if(item.id !== deleteBookID){
+      bookList.push(item);
+    }
+  });
+  app.locals.books = bookList;
+  res.render('delete');
+});
 
 
 
