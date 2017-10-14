@@ -23,6 +23,8 @@
     "express": "^4.16.1",
     "express-session": "^1.15.6",
     "express-validator": "^4.2.1",
-    "nodemon": "^1.12.1"
+    "memory-cache": "^0.2.0",
+    "nodemon": "^1.12.1",
+    "request": "^2.83.0"
   }
 }

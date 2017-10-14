@@ -7,14 +7,17 @@ var app = express();
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var expressValidator = require('express-validator');
-
+var cache = require('memory-cache');
+var request = require('request');
 app.set("view engine", "ejs");
 app.use(cookieParser());
+
 app.use(session({
   secret: 'MAGICALEXPRESSKEY',
   resave: true,
   saveUninitialized: true
 }));
+
 app.use(bodyParser.urlencoded({
   extended: true
 }));
@@ -82,15 +85,25 @@ app.post("/login", middleware.cachePrevent, function (req, res) {
     if (req.body.name === req.body.pwd) {
       app.locals.isLoginFailed = false;
       req.session.username = req.body.name;
-      if (req.session.username === "admin") {
+
+
+      var cacheObj = cache.get(req.session.username);
+      if (cacheObj) {
         var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in!' +
-          '<br>Click <a href="/add">here</a> to ADD some books!' +
-          '<br>Click <a href="/delete">here</a> to DELETE some books!' +
-          '<br>Click <a href="/list">here</a> to Order some books! </body> </html>'
+          '<br>Click <a href="/resume">here</a> to continue old session' +
+          '<br>Click <a href="/list">here</a> to Order some books! </body> </html>';
       } else {
-        var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
+        if (req.session.username === "admin") {
+          var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in!' +
+            '<br>Click <a href="/add">here</a> to ADD some books!' +
+            '<br>Click <a href="/delete">here</a> to DELETE some books!' +
+            '<br>Click <a href="/list">here</a> to Order some books! </body> </html>';
+        } else {
+          var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
+        }
+        res.send(responseString);
       }
-      res.send(responseString);
+
     } else {
       app.locals.isLoginFailed = true;
       res.redirect("login");
@@ -98,6 +111,21 @@ app.post("/login", middleware.cachePrevent, function (req, res) {
   }
 
 });
+
+app.get("/resume", [middleware.cachePrevent, middleware.restrict], function (req, res) {
+  var cacheObj = cache.get(req.session.username);
+
+  request.post('http://localhost:8080/purchase', {
+    Quantity: cacheObj.Quantity,
+    selectedBoxBooks: cacheObj.selectedBoxBooks
+  }, function (error) {
+    if (error) {
+      throw error;
+    }
+  });
+
+});
+
 
 app.get("/list", [middleware.cachePrevent, middleware.restrict], function (req, res) {
   var errors = req.validationErrors();
@@ -110,6 +138,7 @@ app.get("/list", [middleware.cachePrevent, middleware.restrict], function (req, 
 app.post("/purchase", [middleware.cachePrevent, middleware.restrict], function (req, res) {
   var quantity = parseInt(req.body.Quantity);
   //santize and validate quantity field
+  console.log(req.body);
   req.checkBody('Quantity', 'quantity is required').notEmpty();
   req.checkBody('Quantity', 'quantity should be integer').isInt();
 
@@ -180,7 +209,7 @@ app.get('/logout', middleware.cachePrevent, function (req, res) {
 //Admin workflow--------------------
 app.get("/add", [middleware.cachePrevent, middleware.adminRestrict], function (req, res) {
   var errors = req.validationErrors();
-  res.render("add",{
+  res.render("add", {
     errors: errors
   });
 });
@@ -216,15 +245,15 @@ app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (
 
 });
 
-app.get("/delete",[middleware.cachePrevent, middleware.adminRestrict],function(req,res){
+app.get("/delete", [middleware.cachePrevent, middleware.adminRestrict], function (req, res) {
   res.render("delete");
 });
 
-app.post("/delete",[middleware.cachePrevent, middleware.adminRestrict],function(req,res){
+app.post("/delete", [middleware.cachePrevent, middleware.adminRestrict], function (req, res) {
   var deleteBookID = req.body.bookId;
   var bookList = [];
-  app.locals.books.forEach(function(item){
-    if(item.id !== deleteBookID){
+  app.locals.books.forEach(function (item) {
+    if (item.id !== deleteBookID) {
       bookList.push(item);
     }
   });
@@ -260,10 +289,10 @@ app.all("/landing", function (req, res) {
 app.all("/list", function (req, res) {
   res.sendStatus(501);
 });
-app.all('/add', function(req, res){
+app.all('/add', function (req, res) {
   res.sendStatus(501);
 });
-app.all('/delete', function(req, res){
+app.all('/delete', function (req, res) {
   res.sendStatus(501);
 });
 
