@@ -6,12 +6,14 @@
 <div>
 <table cellpadding="10">
     <tr>
+        <th>Book ID</th>
         <th>Name</th>
         <th>Price</th>
         <th>MoreInfo</th>
     </tr>
     <% books.forEach(function(book){%>
         <tr>
+            <td><%= book.id %></td>
             <td><%= book.name %></td>
             <td><%= book.price %></td>
             <td><a href="<%= book.url %>">Get Info</a></td>
