@@ -193,7 +193,6 @@ app.get("/add", [middleware.cachePrevent, middleware.adminRestrict], function (r
 });
 
 app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (req, res) {
-
   //field validations
   req.checkBody('bookId', 'bookId is required').notEmpty().isAlphanumeric();
   req.checkBody('bookName', 'bookName should be non empty').notEmpty();
@@ -215,7 +214,7 @@ app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (
     if (app.locals.books instanceof Array) {
       app.locals.books.push(newBook);
     } else {
-      app.locals.books = newBook;
+      app.locals.books = [newBook];
     }
     res.render("add", {
       errors: errors
