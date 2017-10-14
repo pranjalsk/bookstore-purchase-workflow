@@ -34,7 +34,7 @@ var middleware = {
   },
   restrict: function (req, res, next) {
     if (!req.session.username) {
-      res.redirect("landing");
+      res.redirect(403, "landing");
     } else {
       next();
     }
@@ -43,14 +43,14 @@ var middleware = {
     if (req.session.username && req.session.username === "admin") {
       next();
     } else {
-      res.status(401).location("/landing").end();
+      res.redirect(401, 'landing');
     }
   }
 
 }
 
 //--------------------------------------------------------------------------------
-app.get('/landing', function (req, res) {
+app.get('/landing', middleware.cachePrevent, function (req, res) {
   //req.session.destroy();
   res.render("landing");
 });
