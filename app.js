@@ -217,7 +217,9 @@ app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (
     } else {
       app.locals.books = newBook;
     }
-    res.render("add");
+    res.render("add", {
+      errors: errors
+    });
   }
 
 });
@@ -257,6 +259,12 @@ app.all("/landing", function (req, res) {
   res.sendStatus(501);
 });
 app.all("/list", function (req, res) {
+  res.sendStatus(501);
+});
+app.all('/add', function(req, res){
+  res.sendStatus(501);
+});
+app.all('/delete', function(req, res){
   res.sendStatus(501);
 });
 
