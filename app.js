@@ -160,10 +160,31 @@ function restrict (req, res, next){
 };
 
 
+//Handle unimplemented methods------
+app.all("/purchase", function(req, res) {
+  res.sendStatus(501);
+});
+app.all("/confirm",function(req,res){
+  res.sendStatus(501);
+});
+app.all("/login",function(req,res){
+  res.sendStatus(501);
+});
+app.all("/landing",function(req,res){
+  res.sendStatus(501);
+});
+app.all("/list",function(req,res){
+  res.sendStatus(501);
+});
+
 //Invalid URLs------------------
 app.all('*', function(req, res) {
   res.sendStatus(404);
 });
+
+
+
+
 
 app.listen(8080, process.env.IP, function () {
   console.log("Server started...");
