@@ -25,6 +25,7 @@
     "express-validator": "^4.2.1",
     "memory-cache": "^0.2.0",
     "nodemon": "^1.12.1",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "superagent": "^3.6.3"
   }
 }

@@ -9,6 +9,7 @@ var session = require('express-session');
 var expressValidator = require('express-validator');
 var cache = require('memory-cache');
 var request = require('request');
+var sa = require('superagent');
 
 
 app.set("view engine", "ejs");
@@ -30,7 +31,6 @@ app.locals.isLoginFailed = false;
 //Middleware-------------------
 
 var middleware = {
-
   cachePrevent: function (req, res, next) {
     res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     next();
@@ -88,7 +88,8 @@ app.post("/login", middleware.cachePrevent, function (req, res) {
       req.session.cart = {
         path:'',
         Quantity: '',
-        selectedBooks: []
+        selectedBooks: [],
+        totalCost: 0
       };
       
       var cacheObj = cache.get(req.session.username);
@@ -98,7 +99,7 @@ app.post("/login", middleware.cachePrevent, function (req, res) {
           '<br>Click <a href="/resume">here</a> to continue old session' +
           '<br>Click <a href="/list">here</a> to Order some books! </body> </html>';
       } else {
-        req.session.cart.path = 'http://localhost:8080/login';
+        req.session.cart.path = 'login';
         cache.put(req.session.username, req.session.cart);
         if (req.session.username === "admin") {
           var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in!' +
@@ -120,16 +121,19 @@ app.post("/login", middleware.cachePrevent, function (req, res) {
 
 app.get("/resume", [middleware.cachePrevent, middleware.restrict], function (req, res) {
   var cacheObj = cache.get(req.session.username);
-  
-  request.post(cacheObj.path, {
-    Quantity: cacheObj.Quantity,
-    selectedBoxBooks: cacheObj.selectedBoxBooks
-  }, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      console.log(body)
-    }
-  });
-
+  if(cacheObj.path === 'login'){
+    var errors = req.validationErrors();
+    res.render("list", {
+      currentUser: req.session.username,
+      errors: errors
+    });
+  }else{
+    res.render(cacheObj.path, {
+      currentUser: req.session.username,
+      cartBooks: cacheObj.selectedBooks,
+      totalCost: cacheObj.totalCost
+    });
+  }
 });
 
 
@@ -187,9 +191,10 @@ app.post("/purchase", [middleware.cachePrevent, middleware.restrict], function (
       });
     });
 
-    req.session.cart.path = 'http://localhost:8080/purchase';
+    req.session.cart.path = 'purchase';
     req.session.cart.Quantity = quantity;
     req.session.cart.selectedBooks = selectedBooks;
+    req.session.cart.totalCost = totalCost.toFixed(2);
     cache.put(req.session.username, req.session.cart);
 
     res.render("purchase", {
