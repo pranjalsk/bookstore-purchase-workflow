@@ -8,7 +8,6 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var expressValidator = require('express-validator');
 var cache = require('memory-cache');
-var request = require('request');
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
