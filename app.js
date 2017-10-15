@@ -9,8 +9,6 @@ var session = require('express-session');
 var expressValidator = require('express-validator');
 var cache = require('memory-cache');
 var request = require('request');
-var sa = require('superagent');
-
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
@@ -93,19 +91,16 @@ app.post("/login", middleware.cachePrevent, function (req, res) {
       };
       
       var cacheObj = cache.get(req.session.username);
-      console.log(cacheObj);
       if (cacheObj) {
         var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in!' +
           '<br>Click <a href="/resume">here</a> to continue old session' +
           '<br>Click <a href="/list">here</a> to Order some books! </body> </html>';
       } else {
         req.session.cart.path = 'login';
-        cache.put(req.session.username, req.session.cart);
         if (req.session.username === "admin") {
           var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in!' +
             '<br>Click <a href="/add">here</a> to ADD some books!' +
-            '<br>Click <a href="/delete">here</a> to DELETE some books!' +
-            '<br>Click <a href="/list">here</a> to Order some books! </body> </html>';
+            '<br>Click <a href="/delete">here</a> to DELETE some books!  </body> </html>';
         } else {
           var responseString = '<html><head><title>Bookstore: Logged in</title></head><body><h1>Bookstore: Logged in</h1><br/><br/>Welcome ' + req.body.name + ', you have successfully logged in! Click <a href="/list">here</a> to order some books! </body> </html>'
         }
@@ -139,6 +134,7 @@ app.get("/resume", [middleware.cachePrevent, middleware.restrict], function (req
 
 app.get("/list", [middleware.cachePrevent, middleware.restrict], function (req, res) {
   var errors = req.validationErrors();
+  req.session.cart.path = 'login';
   res.render("list", {
     currentUser: req.session.username,
     errors: errors
@@ -148,7 +144,6 @@ app.get("/list", [middleware.cachePrevent, middleware.restrict], function (req, 
 app.post("/purchase", [middleware.cachePrevent, middleware.restrict], function (req, res) {
   var quantity = parseInt(req.body.Quantity);
   //santize and validate quantity field
-  console.log(req.body);
   req.checkBody('Quantity', 'quantity is required').notEmpty();
   req.checkBody('Quantity', 'quantity should be integer').isInt();
 
@@ -195,7 +190,6 @@ app.post("/purchase", [middleware.cachePrevent, middleware.restrict], function (
     req.session.cart.Quantity = quantity;
     req.session.cart.selectedBooks = selectedBooks;
     req.session.cart.totalCost = totalCost.toFixed(2);
-    cache.put(req.session.username, req.session.cart);
 
     res.render("purchase", {
       currentUser: req.session.username,
@@ -209,6 +203,8 @@ app.post("/purchase", [middleware.cachePrevent, middleware.restrict], function (
 app.post("/confirm", [middleware.cachePrevent, middleware.restrict], function (req, res) {
   var purchaseDetails = req.body;
   var totalCost = req.body.totalCost;
+  req.session.cart.path = 'confirm';
+  cache.del(req.session.username);
   res.render("confirm", {
     currentUser: req.session.username,
     purchase: purchaseDetails
@@ -217,6 +213,13 @@ app.post("/confirm", [middleware.cachePrevent, middleware.restrict], function (r
 
 app.get('/logout', middleware.cachePrevent, function (req, res) {
   //req.session.username = null;
+  if(req.session.cart.path === 'login' || req.session.cart.path === 'purchase'){
+    if(req.session.username !== 'admin'){
+      cache.put(req.session.username, req.session.cart);
+    }
+  }else {
+    cache.del(req.session.username);
+  }
   req.session.destroy();
   // destroy once entire flow is done else store in memory... 
   res.redirect('/landing');
@@ -237,7 +240,7 @@ app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (
   req.checkBody('bookPrice', 'bookPrice is required and should be integer').notEmpty().isInt();
   req.checkBody('bookUrl', 'bookUrl is required').notEmpty();
   var errors = req.validationErrors();
-
+ 
   if (errors) {
     res.render("add", {
       errors: errors
@@ -249,8 +252,26 @@ app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (
       price: req.body.bookPrice,
       url: req.body.bookUrl,
     }
+    var flag = true;
     if (app.locals.books instanceof Array) {
-      app.locals.books.push(newBook);
+      app.locals.books.forEach(function (book) {
+        if (book.id === newBook.id) {
+          flag = false;
+        }
+      });
+      if (flag) {
+        app.locals.books.push(newBook);
+      } else {
+        if (!errors) {
+          errors = []
+        }
+        errors.push({
+          location: '',
+          param: '',
+          msg: 'Bookid should be unique',
+          value: ''
+        });
+      }
     } else {
       app.locals.books = [newBook];
     }
@@ -258,8 +279,7 @@ app.post("/add", [middleware.cachePrevent, middleware.adminRestrict], function (
       errors: errors
     });
   }
-
-});
+ });
 
 app.get("/delete", [middleware.cachePrevent, middleware.adminRestrict], function (req, res) {
   res.render("delete");
@@ -279,7 +299,7 @@ app.post("/delete", [middleware.cachePrevent, middleware.adminRestrict], functio
 
 
 // redirect upon direct URL access
-app.get('/comfirm', function (req, res) {
+app.get('/confirm', function (req, res) {
   req.session.destroy();
   res.redirect('/landing');
 });
